@@ -37,6 +37,12 @@ public class ApplicationController {
 
   String result = service.apply(req);
 
+  if("JOB_NOT_FOUND".equals(result)){
+ return ResponseEntity.ok(
+  new ApiResponse(false,"Job not found",null));
+}
+
+
   if("ALREADY_APPLIED".equals(result)){
 
    return ResponseEntity.ok(

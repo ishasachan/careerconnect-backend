@@ -6,8 +6,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.careerconnect.dto.ApplyRequest;
+import com.careerconnect.model.Job;
 import com.careerconnect.model.JobApplication;
 import com.careerconnect.repository.JobApplicationRepository;
+import com.careerconnect.repository.JobRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationService {
 
  private final JobApplicationRepository repo;
+    private final JobRepository jobRepo;
 
 
  // Apply
@@ -23,7 +26,7 @@ public class ApplicationService {
 
   // Check duplicate
   boolean exists =
-   repo.findByUserIdAndJobId(
+   repo.findByUserIdAndJob_Id(
      req.getUserId(),
      req.getJobId()
    ).isPresent();
@@ -32,11 +35,18 @@ public class ApplicationService {
    return "ALREADY_APPLIED";
   }
 
+   Job job = jobRepo
+   .findById(req.getJobId())
+   .orElse(null);
+
+ if(job == null){
+  return "JOB_NOT_FOUND";
+ }
+ 
   JobApplication app = new JobApplication();
 
   app.setUserId(req.getUserId());
-  app.setJobId(req.getJobId());
-
+  app.setJob(job);
   app.setFullName(req.getFullName());
   app.setEmail(req.getEmail());
   app.setPhone(req.getPhone());

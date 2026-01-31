@@ -19,7 +19,10 @@ public class JobApplication {
 
  private Long userId;
 
- private Long jobId;
+ @ManyToOne
+@JoinColumn(name = "job_id")
+private Job job;
+
 
  private String fullName;
 
