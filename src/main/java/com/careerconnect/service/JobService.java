@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.careerconnect.dto.ApiResponse;
 import com.careerconnect.dto.PostJobRequest;
+import com.careerconnect.dto.RecruiterJobResponse;
 import com.careerconnect.model.Job;
+import com.careerconnect.repository.JobApplicationRepository;
 import com.careerconnect.repository.JobRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class JobService {
 
  private final JobRepository repo;
+ private final JobApplicationRepository applicationRepo;
 
   /* ===============================
        POST JOB
@@ -35,6 +38,7 @@ public class JobService {
         job.setDescription(req.getDescription());
         job.setRequirements(req.getRequirements());
         job.setDepartment(req.getDepartment());
+        job.setStatus("ACTIVE"); // ✅ default
 
         repo.save(job);
 
@@ -76,7 +80,33 @@ public class JobService {
         List<Job> jobs =
             repo.findByRecruiterId(recruiterId);
 
-        return new ApiResponse(true,"Jobs fetched",jobs);
+         // ✅ Convert to DTO
+        List<RecruiterJobResponse> result =
+                jobs.stream().map(job -> {
+
+            RecruiterJobResponse dto =
+                    new RecruiterJobResponse();
+
+            dto.setId(job.getId());
+            dto.setTitle(job.getTitle());
+            dto.setCompany(job.getCompany());
+            dto.setLocation(job.getLocation());
+            dto.setType(job.getType());
+            dto.setSalary(job.getSalary());
+            dto.setStatus(job.getStatus());
+            dto.setPostedDate(job.getPostedDate());
+
+            // ⭐ Count applicants
+            long count =
+              applicationRepo.countByJob_Id(job.getId());
+
+            dto.setApplicantsCount(count);
+
+            return dto;
+
+        }).toList();
+
+        return new ApiResponse(true,"Jobs fetched", result);
     }
 
  // Get All Jobs

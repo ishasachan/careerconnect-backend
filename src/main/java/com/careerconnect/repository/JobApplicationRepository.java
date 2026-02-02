@@ -21,4 +21,7 @@ List<JobApplication> findByJob_Id(Long jobId);
 
 List<JobApplication> findByJob_RecruiterIdAndJob_Id(Long recruiterId, Long jobId);
 
+// ✅ Count applicants for a job
+    long countByJob_Id(Long jobId);
+
 }
