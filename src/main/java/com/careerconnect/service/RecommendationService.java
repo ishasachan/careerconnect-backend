@@ -41,27 +41,62 @@ public class RecommendationService {
 
   for(Job job : jobs){
 
-   if(job.getRequirements()==null) continue;
+   if(job.getRequirements()==null || job.getRequirements().isEmpty()) continue;
 
-   List<String> jobSkills =
-    Arrays.stream(job.getRequirements().split(","))
-    .map(String::trim)
-    .map(String::toLowerCase)
-    .toList();
+   String requirements = job.getRequirements();
+   List<String> jobSkills = new ArrayList<>();
+   
+   // Check if it's HTML or plain text
+   if(requirements.contains("<") && requirements.contains(">")) {
+       // HTML format - extract text and look for capitalized tech terms
+       String plainText = requirements.replaceAll("<[^>]*>", " ");
+       
+       // Common tech skills to look for (case-insensitive)
+       Set<String> techSkills = new HashSet<>(Arrays.asList(
+           "java", "python", "javascript", "typescript", "react", "angular", "vue",
+           "node", "nodejs", "spring", "springboot", "hibernate", "html", "css",
+           "sql", "nosql", "mongodb", "postgresql", "mysql", "redis", "docker",
+           "kubernetes", "aws", "azure", "gcp", "git", "rest", "graphql", "api",
+           "microservices", "devops", "ci/cd", "jenkins", "maven", "gradle",
+           "c++", "c#", "ruby", "php", "go", "rust", "kotlin", "swift",
+           "figma", "sketch", "photoshop", "agile", "scrum", "jira",
+           "webpack", "vite", "bootstrap", "tailwind", "sass", "less"
+       ));
+       
+       // Extract words and match against known tech skills
+       String[] words = plainText.toLowerCase().split("[\\s,;.()\\[\\]]+");
+       for(String word : words) {
+           String cleaned = word.trim();
+           if(techSkills.contains(cleaned) && !jobSkills.contains(cleaned)) {
+               jobSkills.add(cleaned);
+           }
+       }
+   } else {
+       // Plain text comma-separated format
+       jobSkills = Arrays.stream(requirements.split(","))
+           .map(String::trim)
+           .map(String::toLowerCase)
+           .filter(s -> !s.isEmpty())
+           .toList();
+   }
 
    if(jobSkills.isEmpty()) continue;
 
    long matched =
     jobSkills.stream()
-     .filter(userSkills::contains)
+     .filter(jobSkill -> userSkills.stream()
+         .anyMatch(userSkill -> 
+             userSkill.equals(jobSkill) || 
+             userSkill.contains(jobSkill) || 
+             jobSkill.contains(userSkill)))
      .count();
 
    int score =
     (int)((matched * 100.0) / jobSkills.size());
 
 
-   // Only recommend if >50%
-   if(score >= 50){
+   // Only recommend if >30%
+   if(score >= 30){
 
     Map<String,Object> map =
      new HashMap<>();
