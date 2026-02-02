@@ -21,7 +21,7 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 9090
 
 # Environment variable to handle IPv4 preference and other JVM options
-ENV JAVA_OPTS="-Djava.net.preferIPv4Stack=true"
+ENV JAVA_OPTS="-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
 
 # Command to run the application
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
