@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/match")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://careerconnect-frontend-r3mj.onrender.com"})
 public class MatchController {
 
     private final MatchService service;
