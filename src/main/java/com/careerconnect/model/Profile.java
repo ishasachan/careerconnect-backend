@@ -24,4 +24,6 @@ public class Profile {
  private String skills;
 
  private String resumeUrl;
+
+ private Integer experienceYears;
 }
