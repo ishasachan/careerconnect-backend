@@ -17,8 +17,11 @@ WORKDIR /app
 # Copy the jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the application port
+# Expose the application port (Render uses $PORT, but we'll default to 9090 if not set)
 EXPOSE 9090
 
+# Environment variable to handle IPv4 preference and other JVM options
+ENV JAVA_OPTS="-Djava.net.preferIPv4Stack=true"
+
 # Command to run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
