@@ -118,8 +118,15 @@ public class JobService {
  // Get By ID
  public Job getById(Long id) {
 
-   return repo.findById(id)
+   Job job = repo.findById(id)
      .orElse(null);
+
+   if (job != null) {
+     long count = applicationRepo.countByJob_Id(job.getId());
+     job.setApplicantsCount((int) count);
+   }
+
+   return job;
  }
 
 
@@ -161,6 +168,12 @@ public class JobService {
        .filter(j -> location.equalsIgnoreCase(j.getLocation()))
        .toList();
    }
+
+   // Populate applicants count for each job
+   jobs.forEach(job -> {
+     long count = applicationRepo.countByJob_Id(job.getId());
+     job.setApplicantsCount((int) count);
+   });
 
    return jobs;
  }
