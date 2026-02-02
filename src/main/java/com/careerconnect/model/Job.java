@@ -1,6 +1,7 @@
 package com.careerconnect.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +26,8 @@ public class Job {
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  private Long id;
 
+ private Long recruiterId;
+
  private String title;
 
  private String company;
@@ -43,7 +46,12 @@ public class Job {
 
  private String department;
 
- private Integer applicantsCount;
+private Integer applicantsCount = 0;
 
- private LocalDate postedDate;
+private LocalDate postedDate = LocalDate.now();
+
+private LocalDateTime createdAt = LocalDateTime.now();
+
+private String status = "ACTIVE";
+
 }

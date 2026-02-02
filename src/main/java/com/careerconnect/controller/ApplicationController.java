@@ -69,4 +69,44 @@ public class ApplicationController {
     "Applications fetched",
     list));
  }
+
+  /* ===========================
+       LIST APPLICANTS
+       =========================== */
+    @GetMapping("/recruiter/{recruiterId}")
+    public ApiResponse getApplicants(
+
+        @PathVariable Long recruiterId,
+
+        // optional filter
+        @RequestParam(required = false) Long jobId
+    ) {
+
+        return service.getApplicants(recruiterId, jobId);
+    }
+
+
+    /* ===========================
+       UPDATE STATUS
+       =========================== */
+    @PatchMapping("/{id}/status")
+    public ApiResponse updateStatus(
+
+        @PathVariable Long id,
+
+        @RequestParam String status
+    ) {
+
+        return service.updateStatus(id, status);
+    }
+
+
+    /* ===========================
+       RESET STATUS
+       =========================== */
+    @PatchMapping("/{id}/reset")
+    public ApiResponse resetStatus(@PathVariable Long id) {
+
+        return service.resetStatus(id);
+    }
 }

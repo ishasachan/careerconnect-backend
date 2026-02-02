@@ -14,4 +14,11 @@ public interface JobApplicationRepository
 
  Optional<JobApplication>
  findByUserIdAndJob_Id(Long userId,Long jobId);
+
+ List<JobApplication> findByJob_RecruiterId(Long recruiterId);
+
+List<JobApplication> findByJob_Id(Long jobId);
+
+List<JobApplication> findByJob_RecruiterIdAndJob_Id(Long recruiterId, Long jobId);
+
 }
