@@ -21,84 +21,65 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
 public class ProfileController {
-     private final ProfileService service;
+  private final ProfileService service;
 
+  // SAVE / UPDATE PROFILE
+  @PostMapping(value = "/save", consumes = "application/json", produces = "application/json")
+  public ResponseEntity<ApiResponse> save(
+      @RequestBody ProfileRequest req) {
 
-// SAVE / UPDATE PROFILE
- @PostMapping(
-   value = "/save",
-   consumes = "application/json",
-   produces = "application/json"
- )
- public ResponseEntity<ApiResponse> save(
-     @RequestBody ProfileRequest req) {
+    try {
 
-   try {
+      UserProfile profile = service.saveProfile(req);
 
-     UserProfile profile = service.saveProfile(req);
+      return ResponseEntity.ok(
+          new ApiResponse(
+              true,
+              "Profile saved successfully",
+              profile));
 
-     return ResponseEntity.ok(
-       new ApiResponse(
-         true,
-         "Profile saved successfully",
-         profile
-       )
-     );
+    } catch (Exception e) {
 
-   } catch (Exception e) {
+      return ResponseEntity.badRequest().body(
+          new ApiResponse(
+              false,
+              e.getMessage(),
+              null));
+    }
+  }
 
-     return ResponseEntity.badRequest().body(
-       new ApiResponse(
-         false,
-         e.getMessage(),
-         null
-       )
-     );
-   }
- }
+  // GET PROFILE
+  @GetMapping(value = "/{userId}", produces = "application/json")
+  public ResponseEntity<ApiResponse> get(
+      @PathVariable Long userId) {
 
+    try {
 
- // GET PROFILE
- @GetMapping(
-   value = "/{userId}",
-   produces = "application/json"
- )
- public ResponseEntity<ApiResponse> get(
-     @PathVariable Long userId) {
+      UserProfile profile = service.getProfile(userId);
 
-   try {
+      // ✅ If profile not created yet
+      if (profile == null) {
 
-     UserProfile profile = service.getProfile(userId);
+        return ResponseEntity.ok(
+            new ApiResponse(
+                true,
+                "Profile not created yet",
+                null));
+      }
 
-     // ✅ If profile not created yet
-     if (profile == null) {
+      return ResponseEntity.ok(
+          new ApiResponse(
+              true,
+              "Profile fetched successfully",
+              profile));
 
-       return ResponseEntity.ok(
-         new ApiResponse(
-           true,
-           "Profile not created yet",
-           null
-         )
-       );
-     }
+    } catch (Exception e) {
 
-     return ResponseEntity.ok(
-       new ApiResponse(
-         true,
-         "Profile fetched successfully",
-         profile
-       )
-     );
-
-   } catch (Exception e) {
-
-     return ResponseEntity.badRequest().body(
-       new ApiResponse(
-         false,
-         e.getMessage(),
-         null
-       )
-     );
-   }
- }
+      return ResponseEntity.badRequest().body(
+          new ApiResponse(
+              false,
+              e.getMessage(),
+              null));
+    }
+  }
 }

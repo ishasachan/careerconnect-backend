@@ -36,4 +36,5 @@ public class RecruiterProfileRequest {
         private List<String> experience;
         private List<String> locations;
     }
+    
 }

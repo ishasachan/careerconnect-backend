@@ -14,6 +14,5 @@ public class RecruiterJobResponse {
     private String salary;
     private String status;
     private LocalDate postedDate;
-
-    private Long applicantsCount; // ⭐ important
+    private Long applicantsCount; 
 }

@@ -4,26 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="profiles")
+@Table(name = "profiles")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Profile {
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
- private Long userId;
+    private Long userId;
 
- @Column(columnDefinition="TEXT")
- private String bio;
+    @Column(columnDefinition = "TEXT")
+    private String bio;
 
- @Column(columnDefinition="TEXT")
- private String skills;
+    @Column(columnDefinition = "TEXT")
+    private String skills;
 
- private String resumeUrl;
+    private String resumeUrl;
 
- private Integer experienceYears;
+    private Integer experienceYears;
 }

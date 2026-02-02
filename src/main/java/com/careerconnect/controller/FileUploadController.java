@@ -16,105 +16,91 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "http://localhost:4200")
 public class FileUploadController {
 
- private final SupabaseStorageService storage;
+  private final SupabaseStorageService storage;
 
+  // Upload Resume
+  @PostMapping("/resume")
+  public ResponseEntity<?> uploadResume(
+      @RequestParam("file") MultipartFile file) {
 
- // Upload Resume
- @PostMapping("/resume")
- public ResponseEntity<?> uploadResume(
-   @RequestParam("file") MultipartFile file
- ) {
+    try {
 
-   try {
+      validateResume(file);
 
-     validateResume(file);
+      String url = storage.uploadFile(file, "resumes");
 
-     String url =
-       storage.uploadFile(file, "resumes");
+      return ResponseEntity.ok(
+          Map.of(
+              "success", true,
+              "url", url));
 
-     return ResponseEntity.ok(
-       Map.of(
-         "success", true,
-         "url", url
-       )
-     );
+    } catch (Exception e) {
 
-   } catch (Exception e) {
+      return ResponseEntity.badRequest().body(
+          Map.of(
+              "success", false,
+              "error", e.getMessage()));
+    }
+  }
 
-     return ResponseEntity.badRequest().body(
-       Map.of(
-         "success", false,
-         "error", e.getMessage()
-       )
-     );
-   }
- }
+  // Upload Avatar
+  @PostMapping("/avatar")
+  public ResponseEntity<?> uploadAvatar(
+      @RequestParam("file") MultipartFile file) {
 
+    try {
 
- // Upload Avatar
- @PostMapping("/avatar")
- public ResponseEntity<?> uploadAvatar(
-   @RequestParam("file") MultipartFile file
- ) {
+      validateImage(file);
 
-   try {
+      String url = storage.uploadFile(file, "avatars");
 
-     validateImage(file);
+      return ResponseEntity.ok(
+          Map.of(
+              "success", true,
+              "url", url));
 
-     String url =
-       storage.uploadFile(file, "avatars");
+    } catch (Exception e) {
 
-     return ResponseEntity.ok(
-       Map.of(
-         "success", true,
-         "url", url
-       )
-     );
+      return ResponseEntity.badRequest().body(
+          Map.of(
+              "success", false,
+              "error", e.getMessage()));
+    }
+  }
 
-   } catch (Exception e) {
+  // ---------- VALIDATION ----------
 
-     return ResponseEntity.badRequest().body(
-       Map.of(
-         "success", false,
-         "error", e.getMessage()
-       )
-     );
-   }
- }
+  private void validateResume(MultipartFile file) {
 
- // ---------- VALIDATION ----------
+    if (file.isEmpty()) {
+      throw new RuntimeException("File is empty");
+    }
 
- private void validateResume(MultipartFile file) {
+    if (file.getSize() > 10 * 1024 * 1024) {
+      throw new RuntimeException("Max size 10MB");
+    }
 
-   if (file.isEmpty()) {
-     throw new RuntimeException("File is empty");
-   }
+    String type = file.getContentType();
 
-   if (file.getSize() > 10 * 1024 * 1024) {
-     throw new RuntimeException("Max size 10MB");
-   }
+    if (!type.equals("application/pdf") &&
+        !type.contains("word")) {
 
-   String type = file.getContentType();
+      throw new RuntimeException("Only PDF/DOC allowed");
+    }
+  }
 
-   if (!type.equals("application/pdf") &&
-       !type.contains("word")) {
+  private void validateImage(MultipartFile file) {
 
-     throw new RuntimeException("Only PDF/DOC allowed");
-   }
- }
+    if (file.isEmpty()) {
+      throw new RuntimeException("File is empty");
+    }
 
- private void validateImage(MultipartFile file) {
+    if (file.getSize() > 5 * 1024 * 1024) {
+      throw new RuntimeException("Max size 5MB");
+    }
 
-   if (file.isEmpty()) {
-     throw new RuntimeException("File is empty");
-   }
-
-   if (file.getSize() > 5 * 1024 * 1024) {
-     throw new RuntimeException("Max size 5MB");
-   }
-
-   if (!file.getContentType().startsWith("image/")) {
-     throw new RuntimeException("Only images allowed");
-   }
- }
+    if (!file.getContentType().startsWith("image/")) {
+      throw new RuntimeException("Only images allowed");
+    }
+  }
 }

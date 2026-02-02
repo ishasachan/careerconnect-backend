@@ -18,18 +18,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
-    private final AuthService authService;
+  private final AuthService authService;
 
- // SIGNUP
- @PostMapping("/signup")
- public AuthResponse signup(@RequestBody SignupRequest req) {
-   return authService.signup(req);
- }
+  // SIGNUP
+  @PostMapping("/signup")
+  public AuthResponse signup(@RequestBody SignupRequest req) {
+    return authService.signup(req);
+  }
 
- // LOGIN
- @PostMapping("/login")
- public AuthResponse login(@RequestBody LoginRequest req) {
+  // LOGIN
+  @PostMapping("/login")
+  public AuthResponse login(@RequestBody LoginRequest req) {
 
-   return authService.login(req);
- }
+    return authService.login(req);
+  }
 }

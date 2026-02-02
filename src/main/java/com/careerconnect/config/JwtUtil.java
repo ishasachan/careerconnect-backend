@@ -11,23 +11,23 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    
- @Value("${jwt.secret}")
- private String secret;
 
- @Value("${jwt.expiration}")
- private long expiration;
+  @Value("${jwt.secret}")
+  private String secret;
 
- private SecretKey getSigningKey() {
-   return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
- }
+  @Value("${jwt.expiration}")
+  private long expiration;
 
- public String generateToken(String email) {
-   return Jwts.builder()
-     .setSubject(email)
-     .setIssuedAt(new Date())
-     .setExpiration(new Date(System.currentTimeMillis() + expiration))
-     .signWith(getSigningKey())
-     .compact();
- }
+  private SecretKey getSigningKey() {
+    return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public String generateToken(String email) {
+    return Jwts.builder()
+        .setSubject(email)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(System.currentTimeMillis() + expiration))
+        .signWith(getSigningKey())
+        .compact();
+  }
 }

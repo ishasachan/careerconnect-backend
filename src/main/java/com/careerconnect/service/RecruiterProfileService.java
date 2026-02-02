@@ -20,49 +20,44 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RecruiterProfileService {
 
-    private final RecruiterProfileRepository recruiterRepo;
-    private final CompanyRepository companyRepo;
-    private final RecruiterPreferenceRepository prefRepo;
+  private final RecruiterProfileRepository recruiterRepo;
+  private final CompanyRepository companyRepo;
+  private final RecruiterPreferenceRepository prefRepo;
 
-    /* GET */
+  /* GET */
 
-    public ApiResponse getProfile(Long userId){
+  public ApiResponse getProfile(Long userId) {
 
-        RecruiterProfile recruiter =
-          recruiterRepo.findByUserId(userId)
-          .orElse(null);
+    RecruiterProfile recruiter = recruiterRepo.findByUserId(userId)
+        .orElse(null);
 
-        if(recruiter==null){
-            return new ApiResponse(false,"Profile not found",null);
-        }
-
-        Company company =
-          companyRepo.findByRecruiterId(recruiter.getId())
-          .orElse(null);
-
-        RecruiterPreference pref =
-          prefRepo.findByRecruiterId(recruiter.getId())
-          .orElse(null);
-
-        Map<String,Object> data = new HashMap<>();
-
-        data.put("recruiter",recruiter);
-        data.put("company",company);
-        data.put("preferences",pref);
-
-        return new ApiResponse(true,"Profile loaded",data);
+    if (recruiter == null) {
+      return new ApiResponse(false, "Profile not found", null);
     }
 
+    Company company = companyRepo.findByRecruiterId(recruiter.getId())
+        .orElse(null);
 
-    /* SAVE */
+    RecruiterPreference pref = prefRepo.findByRecruiterId(recruiter.getId())
+        .orElse(null);
 
-   public ApiResponse saveProfile(Long userId,
-        RecruiterProfileRequest req){
+    Map<String, Object> data = new HashMap<>();
+
+    data.put("recruiter", recruiter);
+    data.put("company", company);
+    data.put("preferences", pref);
+
+    return new ApiResponse(true, "Profile loaded", data);
+  }
+
+  /* SAVE */
+
+  public ApiResponse saveProfile(Long userId,
+      RecruiterProfileRequest req) {
 
     // 1. Recruiter
-    RecruiterProfile recruiter =
-      recruiterRepo.findByUserId(userId)
-      .orElse(new RecruiterProfile());
+    RecruiterProfile recruiter = recruiterRepo.findByUserId(userId)
+        .orElse(new RecruiterProfile());
 
     recruiter.setUserId(userId);
     recruiter.setName(req.getRecruiter().getName());
@@ -73,11 +68,9 @@ public class RecruiterProfileService {
 
     recruiter = recruiterRepo.save(recruiter);
 
-
     // 2. Company
-    Company company =
-      companyRepo.findByRecruiterId(recruiter.getId())
-      .orElse(new Company());
+    Company company = companyRepo.findByRecruiterId(recruiter.getId())
+        .orElse(new Company());
 
     company.setRecruiterId(recruiter.getId());
     company.setName(req.getCompany().getName());
@@ -89,27 +82,23 @@ public class RecruiterProfileService {
 
     companyRepo.save(company);
 
-
     // 3. Preferences
-    RecruiterPreference pref =
-      prefRepo.findByRecruiterId(recruiter.getId())
-      .orElse(new RecruiterPreference());
+    RecruiterPreference pref = prefRepo.findByRecruiterId(recruiter.getId())
+        .orElse(new RecruiterPreference());
 
     pref.setRecruiterId(recruiter.getId());
 
     pref.setRoles(
-      String.join(",", req.getPreferences().getRoles()));
+        String.join(",", req.getPreferences().getRoles()));
 
     pref.setExperienceLevels(
-      String.join(",", req.getPreferences().getExperience()));
+        String.join(",", req.getPreferences().getExperience()));
 
     pref.setLocations(
-      String.join(",", req.getPreferences().getLocations()));
+        String.join(",", req.getPreferences().getLocations()));
 
     prefRepo.save(pref);
 
-
-    return new ApiResponse(true,"Profile saved",null);
+    return new ApiResponse(true, "Profile saved", null);
+  }
 }
-}
-

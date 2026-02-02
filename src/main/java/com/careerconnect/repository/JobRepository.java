@@ -8,17 +8,16 @@ import com.careerconnect.model.Job;
 
 public interface JobRepository extends JpaRepository<Job, Long> {
 
- // Search + filter
- List<Job> findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCaseOrLocationContainingIgnoreCase(
-   String t,
-   String c,
-   String l
- );
+  // Search + filter
+  List<Job> findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCaseOrLocationContainingIgnoreCase(
+      String t,
+      String c,
+      String l);
 
- List<Job> findByType(String type);
+  List<Job> findByType(String type);
 
- List<Job> findByLocation(String location);
+  List<Job> findByLocation(String location);
 
- List<Job> findByRecruiterId(Long recruiterId);
- 
+  List<Job> findByRecruiterId(Long recruiterId);
+
 }

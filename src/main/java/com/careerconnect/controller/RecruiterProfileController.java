@@ -24,19 +24,17 @@ public class RecruiterProfileController {
 
     /* Get Profile */
     @GetMapping("/{userId}")
-    public ApiResponse getProfile(@PathVariable Long userId){
+    public ApiResponse getProfile(@PathVariable Long userId) {
 
         return service.getProfile(userId);
     }
 
-
     /* Save / Update */
     @PostMapping("/{userId}")
     public ApiResponse saveProfile(
-        @PathVariable Long userId,
-        @RequestBody RecruiterProfileRequest request){
+            @PathVariable Long userId,
+            @RequestBody RecruiterProfileRequest request) {
 
-        return service.saveProfile(userId,request);
+        return service.saveProfile(userId, request);
     }
 }
-

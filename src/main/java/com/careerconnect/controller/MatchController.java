@@ -16,8 +16,7 @@ public class MatchController {
     private final MatchService service;
 
     @PostMapping("/check")
-    public ApiResponse checkMatch(
-            @RequestBody MatchRequest req) {
+    public ApiResponse checkMatch(@RequestBody MatchRequest req) {
 
         return service.checkMatch(req);
     }

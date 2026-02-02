@@ -8,22 +8,21 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
- // Password Encoder (for hashing)
- @Bean
- public BCryptPasswordEncoder passwordEncoder() {
-   return new BCryptPasswordEncoder();
- }
+  // Password Encoder (for hashing)
+  @Bean
+  public BCryptPasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
- // Disable security for APIs
- @Bean
- public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  // Disable security for APIs
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-   http
-     .csrf(csrf -> csrf.disable())
-     .authorizeHttpRequests(auth -> auth
-       .anyRequest().permitAll()
-     );
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll());
 
-   return http.build();
- }
+    return http.build();
+  }
 }

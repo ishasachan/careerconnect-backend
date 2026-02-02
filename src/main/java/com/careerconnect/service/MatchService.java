@@ -28,8 +28,7 @@ public class MatchService {
         }
 
         // 2. Get User Profile
-        Profile profile =
-                profileRepo.findByUserId(req.getUserId())
+        Profile profile = profileRepo.findByUserId(req.getUserId())
                 .orElse(null);
 
         if (profile == null) {
@@ -39,31 +38,23 @@ public class MatchService {
         // 3. Calculate Scores (Simple Logic)
         int skillScore = calculateSkillMatch(
                 profile.getSkills(),
-                job.getRequirements()
-        );
+                job.getRequirements());
 
-        int experienceScore =
-                calculateExperienceMatch(
-                        profile.getExperienceYears()
-                );
+        int experienceScore = calculateExperienceMatch(
+                profile.getExperienceYears());
 
-        int profileScore =
-                profile.getBio() != null ? 80 : 50;
+        int profileScore = profile.getBio() != null ? 80 : 50;
 
-        int finalScore =
-                (skillScore + experienceScore + profileScore) / 3;
+        int finalScore = (skillScore + experienceScore + profileScore) / 3;
 
         // 4. Feedback
-        String feedback =
-                generateFeedback(finalScore);
+        String feedback = generateFeedback(finalScore);
 
         // 5. Save
-        JobMatch match =
-                matchRepo
+        JobMatch match = matchRepo
                 .findByUserIdAndJobId(
                         req.getUserId(),
-                        req.getJobId()
-                )
+                        req.getJobId())
                 .orElse(new JobMatch());
 
         match.setUserId(req.getUserId());
@@ -88,9 +79,11 @@ public class MatchService {
         return new ApiResponse(true, "Match calculated", res);
     }
 
-    /* =============================
-       SCORING LOGIC
-       ============================= */
+    /*
+     * =============================
+     * SCORING LOGIC
+     * =============================
+     */
 
     private int calculateSkillMatch(
             String userSkills,
@@ -107,7 +100,7 @@ public class MatchService {
         for (String us : u) {
             for (String js : j) {
                 if (us.trim()
-                      .equalsIgnoreCase(js.trim())) {
+                        .equalsIgnoreCase(js.trim())) {
                     matched++;
                 }
             }
@@ -120,11 +113,15 @@ public class MatchService {
     private int calculateExperienceMatch(
             Integer exp) {
 
-        if (exp == null) return 50;
+        if (exp == null)
+            return 50;
 
-        if (exp >= 5) return 100;
-        if (exp >= 3) return 80;
-        if (exp >= 1) return 60;
+        if (exp >= 5)
+            return 100;
+        if (exp >= 3)
+            return 80;
+        if (exp >= 1)
+            return 60;
 
         return 40;
     }

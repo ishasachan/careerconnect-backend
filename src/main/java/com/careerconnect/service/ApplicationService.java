@@ -18,121 +18,119 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationService {
 
- private final JobApplicationRepository repo;
-    private final JobRepository jobRepo;
+  private final JobApplicationRepository repo;
+  private final JobRepository jobRepo;
 
+  // Apply
+  public String apply(ApplyRequest req) {
 
- // Apply
- public String apply(ApplyRequest req){
+    // Check duplicate
+    boolean exists = repo.findByUserIdAndJob_Id(
+        req.getUserId(),
+        req.getJobId()).isPresent();
 
-  // Check duplicate
-  boolean exists =
-   repo.findByUserIdAndJob_Id(
-     req.getUserId(),
-     req.getJobId()
-   ).isPresent();
+    if (exists) {
+      return "ALREADY_APPLIED";
+    }
 
-  if(exists){
-   return "ALREADY_APPLIED";
+    Job job = jobRepo
+        .findById(req.getJobId())
+        .orElse(null);
+
+    if (job == null) {
+      return "JOB_NOT_FOUND";
+    }
+
+    JobApplication app = new JobApplication();
+
+    app.setUserId(req.getUserId());
+    app.setJob(job);
+    app.setFullName(req.getFullName());
+    app.setEmail(req.getEmail());
+    app.setPhone(req.getPhone());
+
+    app.setYearsOfExperience(req.getYearsOfExperience());
+    app.setCurrentCompany(req.getCurrentCompany());
+
+    app.setResumeUrl(req.getResumeUrl());
+    app.setCoverLetter(req.getCoverLetter());
+
+    app.setStatus("APPLIED");
+    app.setAppliedDate(LocalDateTime.now());
+
+    repo.save(app);
+
+    return "SUCCESS";
   }
 
-   Job job = jobRepo
-   .findById(req.getJobId())
-   .orElse(null);
+  // Get user applications
+  public List<JobApplication> getByUser(Long userId) {
 
- if(job == null){
-  return "JOB_NOT_FOUND";
- }
- 
-  JobApplication app = new JobApplication();
+    return repo.findByUserId(userId);
+  }
 
-  app.setUserId(req.getUserId());
-  app.setJob(job);
-  app.setFullName(req.getFullName());
-  app.setEmail(req.getEmail());
-  app.setPhone(req.getPhone());
+  /*
+   * ===========================
+   * GET ALL APPLICANTS
+   * ===========================
+   */
+  public ApiResponse getApplicants(Long recruiterId, Long jobId) {
 
-  app.setYearsOfExperience(req.getYearsOfExperience());
-  app.setCurrentCompany(req.getCurrentCompany());
+    List<JobApplication> list;
 
-  app.setResumeUrl(req.getResumeUrl());
-  app.setCoverLetter(req.getCoverLetter());
-
-  app.setStatus("APPLIED");
-  app.setAppliedDate(LocalDateTime.now());
-
-  repo.save(app);
-
-  return "SUCCESS";
- }
-
-
- // Get user applications
- public List<JobApplication> getByUser(Long userId){
-
-  return repo.findByUserId(userId);
- }
-
- /* ===========================
-       GET ALL APPLICANTS
-       =========================== */
-    public ApiResponse getApplicants(Long recruiterId, Long jobId) {
-
-        List<JobApplication> list;
-
-        // Filter by job
-        if (jobId != null) {
-            list = repo.findByJob_RecruiterIdAndJob_Id(recruiterId, jobId);
-        }
-        // All recruiter jobs
-        else {
-            list = repo.findByJob_RecruiterId(recruiterId);
-        }
-
-        return new ApiResponse(true, "Applicants loaded", list);
+    // Filter by job
+    if (jobId != null) {
+      list = repo.findByJob_RecruiterIdAndJob_Id(recruiterId, jobId);
+    }
+    // All recruiter jobs
+    else {
+      list = repo.findByJob_RecruiterId(recruiterId);
     }
 
+    return new ApiResponse(true, "Applicants loaded", list);
+  }
 
-    /* ===========================
-       UPDATE STATUS
-       =========================== */
-    public ApiResponse updateStatus(Long id, String status) {
+  /*
+   * ===========================
+   * UPDATE STATUS
+   * ===========================
+   */
+  public ApiResponse updateStatus(Long id, String status) {
 
-        JobApplication app =
-                repo.findById(id).orElse(null);
+    JobApplication app = repo.findById(id).orElse(null);
 
-        if (app == null) {
-            return new ApiResponse(false, "Application not found", null);
-        }
-
-        app.setStatus(status.toUpperCase());
-
-        repo.save(app);
-
-        return new ApiResponse(true,
-                "Status updated",
-                app);
+    if (app == null) {
+      return new ApiResponse(false, "Application not found", null);
     }
 
+    app.setStatus(status.toUpperCase());
 
-    /* ===========================
-       RESET STATUS
-       =========================== */
-    public ApiResponse resetStatus(Long id) {
+    repo.save(app);
 
-        JobApplication app =
-                repo.findById(id).orElse(null);
+    return new ApiResponse(true,
+        "Status updated",
+        app);
+  }
 
-        if (app == null) {
-            return new ApiResponse(false, "Application not found", null);
-        }
+  /*
+   * ===========================
+   * RESET STATUS
+   * ===========================
+   */
+  public ApiResponse resetStatus(Long id) {
 
-        app.setStatus("APPLIED");
+    JobApplication app = repo.findById(id).orElse(null);
 
-        repo.save(app);
-
-        return new ApiResponse(true,
-                "Status reset",
-                app);
+    if (app == null) {
+      return new ApiResponse(false, "Application not found", null);
     }
+
+    app.setStatus("APPLIED");
+
+    repo.save(app);
+
+    return new ApiResponse(true,
+        "Status reset",
+        app);
+  }
 }

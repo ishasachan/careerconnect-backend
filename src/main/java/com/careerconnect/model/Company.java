@@ -28,4 +28,3 @@ public class Company {
     @Column(columnDefinition = "TEXT")
     private String description;
 }
-

@@ -12,10 +12,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        
+
         String message = ex.getMessage();
         HttpStatus status;
-        
+
         if (message.contains("Email already exists")) {
             status = HttpStatus.CONFLICT; // 409
         } else if (message.contains("User not found") || message.contains("Wrong password")) {
@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         } else {
             status = HttpStatus.BAD_REQUEST; // 400
         }
-        
+
         ErrorResponse error = new ErrorResponse(message, status.value());
         return new ResponseEntity<>(error, status);
     }

@@ -17,41 +17,43 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JobService {
 
- private final JobRepository repo;
- private final JobApplicationRepository applicationRepo;
+  private final JobRepository repo;
+  private final JobApplicationRepository applicationRepo;
 
-  /* ===============================
-       POST JOB
-       =============================== */
+  /*
+   * ===============================
+   * POST JOB
+   * ===============================
+   */
 
-    public ApiResponse postJob(Long recruiterId, PostJobRequest req){
+  public ApiResponse postJob(Long recruiterId, PostJobRequest req) {
 
-        Job job = new Job();
+    Job job = new Job();
 
-        job.setRecruiterId(recruiterId);
+    job.setRecruiterId(recruiterId);
 
-        job.setTitle(req.getTitle());
-        job.setCompany(req.getCompany());
-        job.setLocation(req.getLocation());
-        job.setSalary(req.getSalary());
-        job.setType(req.getType());
-        job.setDescription(req.getDescription());
-        job.setRequirements(req.getRequirements());
-        job.setDepartment(req.getDepartment());
-        job.setStatus("ACTIVE"); // ✅ default
+    job.setTitle(req.getTitle());
+    job.setCompany(req.getCompany());
+    job.setLocation(req.getLocation());
+    job.setSalary(req.getSalary());
+    job.setType(req.getType());
+    job.setDescription(req.getDescription());
+    job.setRequirements(req.getRequirements());
+    job.setDepartment(req.getDepartment());
+    job.setStatus("ACTIVE"); // ✅ default
 
-        repo.save(job);
+    repo.save(job);
 
-        return new ApiResponse(true,"Job posted successfully",job);
-    }
+    return new ApiResponse(true, "Job posted successfully", job);
+  }
 
-    public ApiResponse updateJob(Long jobId, PostJobRequest req) {
+  public ApiResponse updateJob(Long jobId, PostJobRequest req) {
 
     // 1. Find Job
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     // 2. Update Fields
@@ -68,207 +70,200 @@ public class JobService {
     repo.save(job);
 
     return new ApiResponse(true, "Job updated successfully", job);
-}
+  }
 
+  /*
+   * ===============================
+   * GET RECRUITER JOBS
+   * ===============================
+   */
 
- /* ===============================
-       GET RECRUITER JOBS
-       =============================== */
+  public ApiResponse getRecruiterJobs(Long recruiterId) {
 
-    public ApiResponse getRecruiterJobs(Long recruiterId){
+    List<Job> jobs = repo.findByRecruiterId(recruiterId);
 
-        List<Job> jobs =
-            repo.findByRecruiterId(recruiterId);
+    // ✅ Convert to DTO
+    List<RecruiterJobResponse> result = jobs.stream().map(job -> {
 
-         // ✅ Convert to DTO
-        List<RecruiterJobResponse> result =
-                jobs.stream().map(job -> {
+      RecruiterJobResponse dto = new RecruiterJobResponse();
 
-            RecruiterJobResponse dto =
-                    new RecruiterJobResponse();
+      dto.setId(job.getId());
+      dto.setTitle(job.getTitle());
+      dto.setCompany(job.getCompany());
+      dto.setLocation(job.getLocation());
+      dto.setType(job.getType());
+      dto.setSalary(job.getSalary());
+      dto.setStatus(job.getStatus());
+      dto.setPostedDate(job.getPostedDate());
 
-            dto.setId(job.getId());
-            dto.setTitle(job.getTitle());
-            dto.setCompany(job.getCompany());
-            dto.setLocation(job.getLocation());
-            dto.setType(job.getType());
-            dto.setSalary(job.getSalary());
-            dto.setStatus(job.getStatus());
-            dto.setPostedDate(job.getPostedDate());
+      // ⭐ Count applicants
+      long count = applicationRepo.countByJob_Id(job.getId());
 
-            // ⭐ Count applicants
-            long count =
-              applicationRepo.countByJob_Id(job.getId());
+      dto.setApplicantsCount(count);
 
-            dto.setApplicantsCount(count);
+      return dto;
 
-            return dto;
+    }).toList();
 
-        }).toList();
+    return new ApiResponse(true, "Jobs fetched", result);
+  }
 
-        return new ApiResponse(true,"Jobs fetched", result);
+  // Get All Jobs
+  public List<Job> getAll() {
+    return repo.findAll();
+  }
+
+  // Get By ID
+  public Job getById(Long id) {
+
+    Job job = repo.findById(id)
+        .orElse(null);
+
+    if (job != null) {
+      long count = applicationRepo.countByJob_Id(job.getId());
+      job.setApplicantsCount((int) count);
     }
 
- // Get All Jobs
- public List<Job> getAll() {
-   return repo.findAll();
- }
+    return job;
+  }
 
+  // Search + Filter
+  public List<Job> search(
+      String keyword,
+      String type,
+      String location) {
 
- // Get By ID
- public Job getById(Long id) {
+    List<Job> jobs;
 
-   Job job = repo.findById(id)
-     .orElse(null);
+    if (keyword != null && !keyword.isEmpty()) {
 
-   if (job != null) {
-     long count = applicationRepo.countByJob_Id(job.getId());
-     job.setApplicantsCount((int) count);
-   }
+      jobs = repo
+          .findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCaseOrLocationContainingIgnoreCase(
+              keyword, keyword, keyword);
 
-   return job;
- }
+    } else {
 
+      jobs = repo.findAll();
+    }
 
- // Search + Filter
- public List<Job> search(
-   String keyword,
-   String type,
-   String location
- ) {
+    // Filter Type
+    if (type != null && !type.isEmpty()) {
 
-   List<Job> jobs;
+      jobs = jobs.stream()
+          .filter(j -> type.equalsIgnoreCase(j.getType()))
+          .toList();
+    }
 
-   if (keyword != null && !keyword.isEmpty()) {
+    // Filter Location
+    if (location != null && !location.isEmpty()) {
 
-     jobs = repo
-      .findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCaseOrLocationContainingIgnoreCase(
-        keyword, keyword, keyword
-      );
+      jobs = jobs.stream()
+          .filter(j -> location.equalsIgnoreCase(j.getLocation()))
+          .toList();
+    }
 
-   } else {
+    // Populate applicants count for each job
+    jobs.forEach(job -> {
+      long count = applicationRepo.countByJob_Id(job.getId());
+      job.setApplicantsCount((int) count);
+    });
 
-     jobs = repo.findAll();
-   }
+    return jobs;
+  }
 
-
-   // Filter Type
-   if (type != null && !type.isEmpty()) {
-
-     jobs = jobs.stream()
-       .filter(j -> type.equalsIgnoreCase(j.getType()))
-       .toList();
-   }
-
-
-   // Filter Location
-   if (location != null && !location.isEmpty()) {
-
-     jobs = jobs.stream()
-       .filter(j -> location.equalsIgnoreCase(j.getLocation()))
-       .toList();
-   }
-
-   // Populate applicants count for each job
-   jobs.forEach(job -> {
-     long count = applicationRepo.countByJob_Id(job.getId());
-     job.setApplicantsCount((int) count);
-   });
-
-   return jobs;
- }
-
- public ApiResponse pauseJob(Long jobId) {
+  public ApiResponse pauseJob(Long jobId) {
 
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     job.setStatus("PAUSED");
     repo.save(job);
 
     return new ApiResponse(true, "Job paused successfully", job);
-}
+  }
 
-public ApiResponse closeJob(Long jobId) {
+  public ApiResponse closeJob(Long jobId) {
 
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     job.setStatus("CLOSED");
     repo.save(job);
 
     return new ApiResponse(true, "Job closed successfully", job);
-}
+  }
 
-
-public ApiResponse deleteJob(Long jobId) {
+  public ApiResponse deleteJob(Long jobId) {
 
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     repo.delete(job);
 
     return new ApiResponse(true, "Job deleted successfully", null);
-}
-/* ===============================
-   RESUME JOB
-   =============================== */
-public ApiResponse resumeJob(Long jobId) {
+  }
+
+  /*
+   * ===============================
+   * RESUME JOB
+   * ===============================
+   */
+  public ApiResponse resumeJob(Long jobId) {
 
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     if (!"PAUSED".equals(job.getStatus())) {
-        return new ApiResponse(false,
-                "Only paused jobs can be resumed",
-                job.getStatus());
+      return new ApiResponse(false,
+          "Only paused jobs can be resumed",
+          job.getStatus());
     }
 
     job.setStatus("ACTIVE");
     repo.save(job);
 
     return new ApiResponse(true,
-            "Job resumed successfully",
-            job);
-}
+        "Job resumed successfully",
+        job);
+  }
 
-
-/* ===============================
-   REOPEN JOB
-   =============================== */
-public ApiResponse reopenJob(Long jobId) {
+  /*
+   * ===============================
+   * REOPEN JOB
+   * ===============================
+   */
+  public ApiResponse reopenJob(Long jobId) {
 
     Job job = repo.findById(jobId).orElse(null);
 
     if (job == null) {
-        return new ApiResponse(false, "Job not found", null);
+      return new ApiResponse(false, "Job not found", null);
     }
 
     if (!"CLOSED".equals(job.getStatus())) {
-        return new ApiResponse(false,
-                "Only closed jobs can be reopened",
-                job.getStatus());
+      return new ApiResponse(false,
+          "Only closed jobs can be reopened",
+          job.getStatus());
     }
 
     job.setStatus("ACTIVE");
     repo.save(job);
 
     return new ApiResponse(true,
-            "Job reopened successfully",
-            job);
-}
-
+        "Job reopened successfully",
+        job);
+  }
 
 }

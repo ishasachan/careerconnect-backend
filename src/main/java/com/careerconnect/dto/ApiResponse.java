@@ -8,7 +8,7 @@ import lombok.Data;
 public class ApiResponse {
     private boolean success;
 
- private String message;
+    private String message;
 
- private Object data;
+    private Object data;
 }

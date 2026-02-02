@@ -11,35 +11,29 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/recommendations")
 @RequiredArgsConstructor
-@CrossOrigin(origins="http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RecommendationController {
 
- private final RecommendationService service;
+    private final RecommendationService service;
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse> getRecommendations(@PathVariable Long userId) {
 
- @GetMapping("/user/{userId}")
- public ResponseEntity<ApiResponse>
- getRecommendations(@PathVariable Long userId){
+        try {
 
-  try{
+            return ResponseEntity.ok(
+                    new ApiResponse(
+                            true,
+                            "Recommendations fetched",
+                            service.recommend(userId)));
 
-   return ResponseEntity.ok(
-    new ApiResponse(
-     true,
-     "Recommendations fetched",
-     service.recommend(userId)
-    )
-   );
+        } catch (Exception e) {
 
-  }catch(Exception e){
-
-   return ResponseEntity.badRequest().body(
-    new ApiResponse(
-     false,
-     e.getMessage(),
-     null
-    )
-   );
-  }
- }
+            return ResponseEntity.badRequest().body(
+                    new ApiResponse(
+                            false,
+                            e.getMessage(),
+                            null));
+        }
+    }
 }

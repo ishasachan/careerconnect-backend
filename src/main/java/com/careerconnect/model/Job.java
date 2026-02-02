@@ -21,37 +21,37 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Job {
-    
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
 
- private Long recruiterId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
- private String title;
+    private Long recruiterId;
 
- private String company;
+    private String title;
 
- private String location;
+    private String company;
 
- private String salary;
+    private String location;
 
- private String type;
+    private String salary;
 
- @Column(columnDefinition = "TEXT")
- private String description;
+    private String type;
 
- @Column(columnDefinition = "TEXT")
- private String requirements; // comma separated
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
- private String department;
+    @Column(columnDefinition = "TEXT")
+    private String requirements; 
 
-private Integer applicantsCount = 0;
+    private String department;
 
-private LocalDate postedDate = LocalDate.now();
+    private Integer applicantsCount = 0;
 
-private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDate postedDate = LocalDate.now();
 
-private String status = "ACTIVE";
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    private String status = "ACTIVE";
 
 }

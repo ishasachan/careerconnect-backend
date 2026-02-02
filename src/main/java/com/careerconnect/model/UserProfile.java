@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "user_profiles")
 @Getter
@@ -25,38 +24,38 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfile {
-@Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
- @OneToOne
- @JoinColumn(name = "user_id")
- private User user;
+  @OneToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
- @Column(columnDefinition = "TEXT")
- private String bio;
+  @Column(columnDefinition = "TEXT")
+  private String bio;
 
- private String skills;
+  private String skills;
 
- private String resumeUrl;
+  private String resumeUrl;
 
- private String avatarUrl;
+  private String avatarUrl;
 
- @Column(columnDefinition = "TEXT")
- private String aiFeedback; // JSON as String
+  @Column(columnDefinition = "TEXT")
+  private String aiFeedback;
 
- private LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
- private LocalDateTime updatedAt;
+  private LocalDateTime updatedAt;
 
- @PrePersist
- public void onCreate() {
-   createdAt = LocalDateTime.now();
-   updatedAt = LocalDateTime.now();
- }
+  @PrePersist
+  public void onCreate() {
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+  }
 
- @PreUpdate
- public void onUpdate() {
-   updatedAt = LocalDateTime.now();
- }
+  @PreUpdate
+  public void onUpdate() {
+    updatedAt = LocalDateTime.now();
+  }
 }

@@ -28,4 +28,3 @@ public class RecruiterPreference {
     @Column(columnDefinition = "TEXT")
     private String locations;
 }
-

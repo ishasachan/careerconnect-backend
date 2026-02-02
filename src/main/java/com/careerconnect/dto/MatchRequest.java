@@ -6,5 +6,6 @@ import lombok.Data;
 public class MatchRequest {
 
     private Long userId;
+    
     private Long jobId;
 }

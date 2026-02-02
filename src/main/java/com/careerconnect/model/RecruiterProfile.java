@@ -25,4 +25,3 @@ public class RecruiterProfile {
 
     private String avatarUrl;
 }
-

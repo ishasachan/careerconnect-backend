@@ -13,5 +13,4 @@ public class PostJobRequest {
     private String description;
     private String requirements;
     private String department;
-    
 }
